@@ -1,0 +1,54 @@
+%text.tex
+
+\documentclass{article}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{amssymb}
+\DeclareGraphicsExtensions{.pdf}
+\title{CSE881 - Project Proposal}
+\author{Sorrachai Yingchareonthawornchai, Vaibhav Sharma \\
+ \texttt{yingchar@msu.edu}, \texttt{sharmav6@msu.edu}\\
+}
+\begin{document}
+\maketitle
+\section{Fraudulent Resume Detection}
+Project type: Prototype Development
+
+(Importance of the project as a practical applications) ...
+\\
+Problem statement: given a resume, determine whether or not the resume
+is fabricated. \\
+Goal: returns a value for a given resume with links or evidences to
+original resume in database. \\
+
+We define a resume as a set of sections. A section contains a collection of
+sentences. We assume that the document has XML format. We regard
+techniques in natural language processing as not in scope of this
+project. 
+
+\textbf{Overview of tasks.}\\
+In the preprocessing step, we create a document parser that takes in
+XML documents as input. The output is a set of sections containing
+topics and its sentences.  The next step is to identify indicators
+that we need to perform detection. Indicators have varieties of
+challenges and intelligence. For example, one simple indicator would be matching
+university name with our fake university list. Another example would
+be check degree of plagiarism. Next example, checking consistency
+regarding description of the company against company name (e.g.,
+``Google, description: a nuclear energy plants'' does not make
+sense). Each indicator could be a data mining task. Once we have
+all indicators, we regards them as feature of the document. We then
+perform classification to output a degree of fraudulence and
+confidence level. Finally, we will build an interactive system that
+helps visualize the model and outputs. 
+
+Brief summary of tasks: 
+\begin{enumerate}
+\item Document parser (Preprocessing)
+\item Indication function (Feature extraction)
+\item Classification using extracted features
+\item An Interactive system that users can interact with
+\end{enumerate}
+\end{document}
