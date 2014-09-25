@@ -14,30 +14,26 @@
 \begin{document}
 \maketitle
 \section{Fraudulent Resume Detection}
-Project type: Prototype Development
-
-(Importance of the project as a practical applications) ...
+\textbf{Project type:} Prototype Development
 \\
-Problem statement: given a resume, determine whether or not the resume
+\textbf{Problem statement:} given a resume, determine whether or not the resume
 is fabricated. \\
-Goal: returns a value for a given resume with links or evidences to
+\textbf{Goal:} return a value for a given resume with links or evidences to
 original resume in database. \\
 
 We define a resume as a set of sections. A section contains a collection of
 sentences. We assume that the document has XML format. We regard
 techniques in natural language processing as not in scope of this
-project. 
+project. The problem statement of this project is also requested as a solution by a company which will be providing us with the data needed for this project.\\
 
-\textbf{Overview of tasks.}\\
+\textbf{Overview of tasks}\\
 In the preprocessing step, we create a document parser that takes in
-XML documents as input. The output is a set of sections containing
+resumes as input. While the format of the resumes is undecided as of now, we are looking if the XML format of the resumes can be used to shorten the preprocessing step. The output is a set of sections containing
 topics and its sentences.  The next step is to identify indicators
-that we need to perform detection. Indicators have varieties of
-challenges and intelligence. For example, one simple indicator would be matching
-university name with our fake university list. Another example would
-be check degree of plagiarism. Next example, checking consistency
+that we need to perform detection. The challenges in extracting such indicators will range from simple to difficult. For example, one simple indicator would be matching
+university name in the Education Section with our fake university list. Another example would be checking consistency
 regarding description of the company against company name (e.g.,
-``Google, description: a nuclear energy plants'' does not make
+``Company Name: Meijer, Description: a nuclear power plant design company'' does not make
 sense). Each indicator could be a data mining task. Once we have
 all indicators, we regards them as feature of the document. We then
 perform classification to output a degree of fraudulence and
