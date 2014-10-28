@@ -6,6 +6,7 @@
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage{amssymb}
+\usepackage[top =2in]{geometry}
 \DeclareGraphicsExtensions{.pdf}
 \title{CSE881 - Project Intermediate Report}
 \author{Sorrachai Yingchareonthawornchai, Vaibhav Sharma \\
@@ -17,21 +18,31 @@
 \section*{ Fraudulent Resume Detection }
 \textbf{Project Type:} Prototype Development
 
-
 \section{Revised Abstract} Given a resume, return a value with links to original resume(s) or evidences of plagiarism from resumes in database. \\
 We define a resume as a set of sections. A section contains a collection of sentences. We assume that the document has text format. We regard techniques in natural language processing as not in scope of this project. The problem statement of this project is also requested as a solution by a company which will be providing us with the data needed for this project.
 
 \section{Preliminary work}
-We began parsing through the resumes in XML format and realized the information present in the XML resumes is not sufficient for us to come up with good indicator functions. We then moved to preprocessing the resumes in text format wherein we used the following steps.
+We have done the following preliminary works.
 \begin{enumerate}
-\item We first identified the keywords which would typically indicate the beginning of a section in a resume. For eg. most often the keyword "responsibilities" is used to indicate the start of a "Responsibilities" section which describes all the tasks carried out by an individual in a company. Some sections were found to be described by multiple keywords. For eg. we found that the "Experience" section can begin with the keywords "experience", "project experience" or "work experience".
-\item We created a state machine which would divide a text resume into sections based on these keywords and assign all lines between keywords to a section.
+\item Preprocessing: partition resume into a set of sections. Each
+  section is represented as a list of bags of keywords (common words eliminiated).
+\item Feature Extraction Design: we have planned to use 5 features
+  (indicators). One technical feature is section-level plagiarism checking. We recast
+  plagiarism checking as a bipartite graph maximum matching problem.  A
+  set of vertices in first bi-partition corresponds to a list of word
+  lines in the first section. The second set of vertices is second
+  bi-partition, similar to
+  the first one. Edge is weighted by Jaccard similarity between two
+  word lines. The extracted feature will be discretized into degree of
+  confidence. 
+\item Classification Method: we planned to use k-NN classifier as a baseline
+  to compare against k-NN combined with Naive Bayes' classifier.
 \end{enumerate}
 
 \section{Future Work}
-After preprocessing, a resume is a set of sections and each section contains a bag of filtered words.
 
-\subsection{Data Mining Tasks}
+\subsection{Tasks}
+\subsubsection{Data Mining Tasks}
 \begin{itemize}
 	\item baseline: search for k-nearest pairs using jaccard similarity or q-gram. 
 	\item our approach: (int t)
@@ -44,24 +55,30 @@ After preprocessing, a resume is a set of sections and each section contains a b
 		\item If resumes belongs to different owners, plagiarism between sections (use graph maximum matching, parameter: threshold)
 		\item If resumes belongs to different owners, match university name with list of faked universities (parameter: list of faked university) 
 		\item If resumes belongs to different owners, match DOB vs. claimed experience
-		\item If resumes belongs to same owner, inverse of plagiarism between sections (parameter: threshold)
+		\item If resumes belongs to same owner, inverse of
+                  plagiarism between sections (parameter: threshold)
 	\end{enumerate}
 \end{itemize}
-   
+ \subsubsection{Website Development}
+The website has two pages: upload\_resume.php and display\_result.php. \\
+ After classification, we also show indicators with confidence level
+ (if any). For example, if there is plagiarism between two sections,
+ the website also show links to sections where match occurs.
 \subsection{Timeline}
 \begin{itemize}
 \item Classifier Design \& Preprocessing - completed - Oct 24
-\item Implement baseline, indicator functions \& Naive Bayes classifier - Nov 18
-\item Merge indicator functions into Naive Bayes classifier - Nov 21
-\item Bug fixing - Nov 28
-\item Prototype design \& development - Dec 3
+\item Baseline, indicator functions - Nov 11
+\item Train Naive Bayes model - Nov 18
+\item Prototype website design \& development - Nov 27
+\item Bug fixing \& Final report - Dec 2
 \end{itemize}
-
-
 
 \section{Contribution}
 \begin{itemize}
-\item Sorrachai Yingchareonthawornchai -
+\item Sorrachai Yingchareonthawornchai - he has designed section
+  level-plagiarism checker, and reviewed duplicate detection
+  literatures. He will complete implementation of feature extractions
+  namely bipartite graph maximum matching, and prototype development.
 \item Vaibhav Sharma - was responsible for the preprocessing task, will be responsible for establishing the baseline using Jaccard Similary and kNN metrics, clubbing all base indicator functions together and passing it to our Naive Bayes classifier, will be partially responsible for designing and implementing the prototype
 \end{itemize}
 
