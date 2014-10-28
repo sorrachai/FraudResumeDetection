@@ -1,0 +1,180 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww25100\viewh12920\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs28 \cf0 Ignore all blanks lines in the document.\
+A Keyword can only be said to be describing a section if it has a end-of-line happening in less than 5 characters after the keyword ends, unless it is 
+\b EXPERIENCE
+\b0  which ends after end of line.\
+\
+if line is blank\
+	ignore it\
+if line follows new resume REGEX\
+	close old resume\
+	start new resume\
+	get_next_keyword\
+switch(old_keyword,new_keyword)\
+\
+BEGIN_REGEX,summary\
+	save info from BEGIN_REGEX\
+	set <content> = NULL\
+	get_next_keyword\
+\
+BEGIN_REGEX,exp\
+	save info from BEGIN_REGEX\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	create new summary section for current resume\
+	save <content> to summary section\
+	set <content> = NULL\
+	get_next_keyword\
+\
+BEGIN_REGEX,skills\
+	save info from BEGIN_REGEX\
+	create new summary section for current resume\
+	save <content> to summary section\
+	set <content> = NULL\
+	get_next_keyword\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+summary,skills\
+	create new summary section for current resume\
+	save <content> to summary section\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	get_next_keyword\
+\
+skills,exp\
+	create new skills section for current resume\
+	save <content> to skills section\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	get_next_keyword\
+\
+exp,resp\
+	create new proj section for current resume\
+	save <content> to proj section\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	get_next_keyword\
+\
+resp,env\
+	create new resp section for current resume\
+	save <content> to resp section\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	get_next_keyword\
+\
+env,resp\
+	create new proj section for current resume\
+	save <content> to proj section\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	get_next_keyword\
+\
+env, education\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	get_next_keyword\
+\
+education, BEGIN_REGEX\
+	create new education section for current resume\
+	save <content> to education section\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	close current resume\
+	create new resume\
+	make new resume as current\
+\
+summary, education\
+	create new summary section for current resume\
+	save <content> to summary section\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	get_next_keyword\
+\
+education, skills\
+	create new education section for current resume\
+	save <content> to education section\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	get_next_keyword\
+\
+env, BEGIN_REGEX\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 	set <content> = NULL\
+	close current resume\
+	create new resume\
+	make new resume as current\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+	\
+\
+\
+\
+\
+after all resumes have been read, go through each section in each resume, discard all technical keywords\
+\
+\
+CSXXXXXXXX,Last,First,Email@ID.XXX,CITY,STATE,PIN,NULL,TELNO, - new resume beginning REGEX\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 CSXXXXXXXX,Last,First,Email@ID.XXX,CITY,STATE,PIN,NULL,TELNO,\
+\
+
+\b BEGIN_REGEX
+\b0 \
+\
+<ignore content until next keyword>\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b \cf0 summary: PROFESSIONAL EXPERIENCE/PROFESSIONAL SUMMARY/SUMMARY\
+\
+
+\b0 <content>
+\b \
+\
+skills: TECHNICAL SKILLS/BUSINESS AND TECHNICAL SKILLS/SKILLS\
+\
+
+\b0 <content>\
+\
+
+\b exp: EXPERIENCE/PROJECT EXPERIENCE/WORK EXPERIENCE
+\b0 <exp1-begins>\
+<content>\
+
+\b resp: RESPONSIBILITIES\
+
+\b0 <content>
+\b \
+env: ENVIRONMENT/TOOLS AND TECHNOLOGIES 
+\b0 <content>\
+<content>\
+
+\b resp: RESPONSIBILITIES\
+
+\b0 <content>\
+
+\b env: ENVIRONMENT
+\b0  <content><exp2-ends-at-EOL>\
+
+\b \
+education: EDUCATION
+\b0 \
+<1 line content>\
+\
+\
+}
