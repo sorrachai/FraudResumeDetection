@@ -1,0 +1,68 @@
+%text.tex
+
+\documentclass{article}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{amssymb}
+\DeclareGraphicsExtensions{.pdf}
+\title{CSE881 - Project Intermediate Report}
+\author{Sorrachai Yingchareonthawornchai, Vaibhav Sharma \\
+ \texttt{yingchar@msu.edu}, \texttt{sharmav6@msu.edu}\\
+}
+\begin{document}
+\maketitle
+
+\section*{ Fraudulent Resume Detection }
+\textbf{Project Type:} Prototype Development
+
+
+\section{Revised Abstract} Given a resume, return a value with links to original resume(s) or evidences of plagiarism from resumes in database. \\
+We define a resume as a set of sections. A section contains a collection of sentences. We assume that the document has text format. We regard techniques in natural language processing as not in scope of this project. The problem statement of this project is also requested as a solution by a company which will be providing us with the data needed for this project.
+
+\section{Preliminary work}
+We began parsing through the resumes in XML format and realized the information present in the XML resumes is not sufficient for us to come up with good indicator functions. We then moved to preprocessing the resumes in text format wherein we used the following steps.
+\begin{enumerate}
+\item We first identified the keywords which would typically indicate the beginning of a section in a resume. For eg. most often the keyword "responsibilities" is used to indicate the start of a "Responsibilities" section which describes all the tasks carried out by an individual in a company. Some sections were found to be described by multiple keywords. For eg. we found that the "Experience" section can begin with the keywords "experience", "project experience" or "work experience".
+\item We created a state machine which would divide a text resume into sections based on these keywords and assign all lines between keywords to a section.
+\end{enumerate}
+
+\section{Future Work}
+After preprocessing, a resume is a set of sections and each section contains a bag of filtered words.
+
+\subsection{Data Mining Tasks}
+\begin{itemize}
+	\item baseline: search for k-nearest pairs using jaccard similarity or q-gram. 
+	\item our approach: (int t)
+	\begin{enumerate}
+		\item search for \textbf{t}-nearest pairs using same as above
+		\item among \textbf{t} candidates, apply Naive Bayes' classifier using indicators
+	\end{enumerate}
+	\item indicators:
+	\begin{enumerate}
+		\item If resumes belongs to different owners, plagiarism between sections (use graph maximum matching, parameter: threshold)
+		\item If resumes belongs to different owners, match university name with list of faked universities (parameter: list of faked university) 
+		\item If resumes belongs to different owners, match DOB vs. claimed experience
+		\item If resumes belongs to same owner, inverse of plagiarism between sections (parameter: threshold)
+	\end{enumerate}
+\end{itemize}
+   
+\subsection{Timeline}
+\begin{itemize}
+\item Classifier Design \& Preprocessing - completed - Oct 24
+\item Implement baseline, indicator functions \& Naive Bayes classifier - Nov 18
+\item Merge indicator functions into Naive Bayes classifier - Nov 21
+\item Bug fixing - Nov 28
+\item Prototype design \& development - Dec 3
+\end{itemize}
+
+
+
+\section{Contribution}
+\begin{itemize}
+\item Sorrachai Yingchareonthawornchai -
+\item Vaibhav Sharma - was responsible for the preprocessing task, will be responsible for establishing the baseline using Jaccard Similary and kNN metrics, clubbing all base indicator functions together and passing it to our Naive Bayes classifier, will be partially responsible for designing and implementing the prototype
+\end{itemize}
+
+\end{document}
