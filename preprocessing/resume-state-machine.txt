@@ -1,0 +1,118 @@
+Ignore all blanks lines in the document.
+A Keyword can only be said to be describing a section if it has a end-of-line happening in less than 5 characters after the keyword ends, unless it is EXPERIENCE which ends after end of line.
+
+if line is blank
+	ignore it
+if line follows new resume REGEX
+	close old resume
+	start new resume
+	get_next_keyword
+switch(old_keyword,new_keyword)
+
+BEGIN_REGEX,summary
+	save info from BEGIN_REGEX
+	set <content> = NULL
+	get_next_keyword
+
+BEGIN_REGEX,exp
+	save info from BEGIN_REGEX
+	create new summary section for current resume
+	save <content> to summary section
+	set <content> = NULL
+	get_next_keyword
+
+BEGIN_REGEX,skills
+	save info from BEGIN_REGEX
+	create new summary section for current resume
+	save <content> to summary section
+	set <content> = NULL
+	get_next_keyword
+
+summary,skills
+	create new summary section for current resume
+	save <content> to summary section
+	set <content> = NULL
+	get_next_keyword
+
+skills,exp
+	create new skills section for current resume
+	save <content> to skills section
+	set <content> = NULL
+	get_next_keyword
+
+exp,resp
+	create new proj section for current resume
+	save <content> to proj section
+	set <content> = NULL
+	get_next_keyword
+
+resp,env
+	create new resp section for current resume
+	save <content> to resp section
+	set <content> = NULL
+	get_next_keyword
+
+env,resp
+	create new proj section for current resume
+	save <content> to proj section
+	set <content> = NULL
+	get_next_keyword
+
+env, education
+	set <content> = NULL
+	get_next_keyword
+
+education, BEGIN_REGEX
+	create new education section for current resume
+	save <content> to education section
+	set <content> = NULL
+	close current resume
+	create new resume
+	make new resume as current
+
+summary, education
+	create new summary section for current resume
+	save <content> to summary section
+	set <content> = NULL
+	get_next_keyword
+
+education, skills
+	create new education section for current resume
+	save <content> to education section
+	set <content> = NULL
+	get_next_keyword
+
+env, BEGIN_REGEX
+	set <content> = NULL
+	close current resume
+	create new resume
+	make new resume as current
+
+
+	
+
+
+
+
+after all resumes have been read, go through each section in each resume, discard all technical keywords
+
+BEGIN_REGEX: (.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)
+
+summary: PROFESSIONAL EXPERIENCE/PROFESSIONAL SUMMARY/SUMMARY - SUMMARY___
+
+skills: TECHNICAL SKILLS/BUSINESS AND TECHNICAL SKILLS/SKILLS - 
+
+exp: EXPERIENCE/PROJECT EXPERIENCE/WORK EXPERIENCE<exp1-begins>
+
+resp: RESPONSIBILITIES
+
+env: ENVIRONMENT/TOOLS AND TECHNOLOGIES <content>
+
+resp: RESPONSIBILITIES
+
+env: ENVIRONMENT <content><exp2-ends-at-EOL>
+
+education: EDUCATION
+
+
+
