@@ -9,8 +9,7 @@
 
 using namespace std;
 
-regex BEGIN_REGEX("(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)");
-regex SUMMARY("(.*)summary(.*)");
+regex BEGIN_REGEX("cs(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)");
 
 char tolower(char in){
   if(in<='Z' && in>='A')
@@ -41,16 +40,41 @@ std::string strip(std::string s) {
   return ltrim(rtrim(s));
 }
 
-bool isSummary(string s) {
-	int pos=s.find("summary");
+bool isSection(string s,string section) {
+	int pos=s.find(section);
 	int len = s.length();
-	if(pos>=0 && pos<len && len-pos-7<=3) return true;
+	if(pos==0 && pos<len && len-pos-section.length()<=3) return true;
 	return false;
+}
+
+bool isSummary(string s) {
+	if(isSection(s,"summary") || isSection(s,"professional summary"))
+		return true;
+    return false;
+}
+
+bool isSkills(string s) {
+	if(isSection(s,"skills") || isSection(s,"technical skills") ||
+		isSection(s,"business and technical skills"))
+		return true;
+    return false;
+}
+
+bool isExperience(string s) {
+	if(isSection(s,"experience") || isSection(s,"project experience") ||
+		isSection(s,"work experience"))
+		return true;
+    return false;
+}
+
+bool isResponsibilities(string s) {
+	if(isSection(s,"responsibilities"))
+		return true;
+    return false;
 }
 
 int main ()
 {
-	string testline("CS00107125,Ravi,Kumar,rkanalyst26@gmail.com,NULL,NJ,NULL,NULL,224-208-5704,");
 	string sumtest("SUMMARY");
 
 	ifstream file("fraudresumes.txt");
@@ -60,16 +84,16 @@ int main ()
 	  line=strip(tolower(line));
 		cout<<line<<endl;
 	  if(isSummary(line))
-	  //if(regex_match(line,SUMMARY))
-		  cout<<"Summary matched!\n";
-    if(regex_match(line,BEGIN_REGEX))
-	    cout<<"Begin matched!\n";
-
+		cout<<"********Summary matched!********\n";
+	  if(isSkills(line))
+		cout<<"********Skills matched!********\n";
+	  if(isExperience(line))
+		cout<<"********Experience matched!********\n";
+      if(regex_match(line,BEGIN_REGEX))
+	    cout<<"********Begin matched!********\n";
 	}
 	
   
-	
-	
   if (std::regex_match ("subject", std::regex("(sub)(.*)") ))
     std::cout << "string literal matched\n";
 
