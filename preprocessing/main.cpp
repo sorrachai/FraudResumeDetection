@@ -7,90 +7,66 @@
 #include <algorithm>
 #include <vector>
 
+#include "resume.h"
+
 using namespace std;
 
 regex BEGIN_REGEX("cs(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)");
 
-char tolower(char in){
-  if(in<='Z' && in>='A')
-    return in-('Z'-'z');
-	return in;
-}
+vector<string> content;
+vector<Resume> resumes;
+Resume cur_resume;
 
-string tolower(string s) {
-	string ret=s;
-	for(int i=0;i<s.length();i++) ret[i]=tolower(s[i]);
-	return ret;
-}
-
-// trim from start
-std::string &ltrim(std::string &s) {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-  return s;
-}
-
-// trim from end
-std::string &rtrim(std::string &s) {
-  s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-  return s;
-}
-
-// trim from both ends
-std::string strip(std::string s) {
-  return ltrim(rtrim(s));
-}
-
-bool isSection(string s,string section) {
-	int pos=s.find(section);
-	int len = s.length();
-	if(pos==0 && pos<len && len-pos-section.length()<=3) return true;
-	return false;
-}
-
-bool isSummary(string s) {
-	if(isSection(s,"summary") || isSection(s,"professional summary"))
-		return true;
-    return false;
-}
-
-bool isSkills(string s) {
-	if(isSection(s,"skills") || isSection(s,"technical skills") ||
-		isSection(s,"business and technical skills"))
-		return true;
-    return false;
-}
-
-bool isExperience(string s) {
-	if(isSection(s,"experience") || isSection(s,"project experience") ||
-		isSection(s,"work experience"))
-		return true;
-    return false;
-}
-
-bool isResponsibilities(string s) {
-	if(isSection(s,"responsibilities"))
-		return true;
-    return false;
+void update(Resume cur_resume,state&last, state&cur, state _cur, vector<string> &content) {
+	cur_resume.addSection(last,content);
+	last=cur;
+	cur=_cur;
+	if(cur==beg) {
+		cur_resume = Resume();
+	}
 }
 
 int main ()
 {
 	string sumtest("SUMMARY");
 
+	//ifstream file("testresume.txt");
 	ifstream file("fraudresumes.txt");
 	string line;
+	state last=null,cur=null;
 
 	while(getline(file,line)) {
 	  line=strip(tolower(line));
 		cout<<line<<endl;
-	  if(isSummary(line))
-		cout<<"********Summary matched!********\n";
-	  if(isSkills(line))
-		cout<<"********Skills matched!********\n";
-	  if(isExperience(line))
-		cout<<"********Experience matched!********\n";
-      if(regex_match(line,BEGIN_REGEX))
+	  if(isSummary(line)) {
+		  cout<<"********Summary matched!********\n";
+			update(cur_resume,last,cur,summ,content);
+	  }
+		if(isSkills(line)) {
+		  cout<<"********Skills matched!********\n";
+			update(cur_resume,last,cur,skill,content);
+		}
+	  if(isExperience(line)) {
+		  cout<<"********Experience matched!********\n";
+			update(cur_resume,last,cur,exp,content);
+		}
+    if(regex_match(line,BEGIN_REGEX)) {
 	    cout<<"********Begin matched!********\n";
+			update(cur_resume,last,cur,beg,content);
+		}
+		if(isResponsibilities(line)) {
+	    cout<<"********Responsibilities matched!********\n";
+			update(cur_resume,last,cur,resp,content);
+		}
+		if(isEnvironment(line)) {
+	    cout<<"********Environment matched!********\n";
+			update(cur_resume,last,cur,env,content);
+		}
+		if(isEducation(line)) {
+	    cout<<"********Education matched!********\n";
+			update(cur_resume,last,cur,edu,content);
+		}
+		content.push_back(line);
 	}
 	
   
