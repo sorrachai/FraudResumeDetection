@@ -14,9 +14,9 @@ enum state{
 
 class Resume {
 	public:
-	  map<state,vector<string> > sections;
+	  multimap<state,vector<string> > sections;
 		void addSection(state s,vector<string> &content) {
-			sections[s]=content;
+			sections.insert(pair<state,vector<string> >(s,content));
 			content = vector<string>();
 		}
 };
@@ -53,7 +53,8 @@ std::string strip(std::string s) {
 bool isSection(string s,string section) {
 	int pos=s.find(section);
 	int len = s.length();
-	if(pos==0 && pos<len && len-pos-section.length()<=3) return true;
+	if(pos==0 ) return true;
+	//if(pos==0 && pos<len && len-pos-section.length()<=3) return true;
 	return false;
 }
 
@@ -72,7 +73,8 @@ bool isSkills(string s) {
 
 bool isExperience(string s) {
 	if(isSection(s,"experience") || isSection(s,"project experience") ||
-		isSection(s,"work experience"))
+		isSection(s,"work experience") || isSection(s,"professional experience") ||
+		isSection(s,"recent experience"))
 		return true;
   return false;
 }
