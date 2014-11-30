@@ -1,13 +1,14 @@
+CPPFLAGS=-std=c++11 -g -O2 -Wall
+
 CC=c++
-CFLAGS=-I.
-DEPS = resume.h
+DEPS = resume.h ResumeDetection.h utilities.h edge.h
 OBJ = main.o  
 
 %.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(CPPFLAGS)
 
 FraudDetector: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CPPFLAGS)
 
 clean:
 	rm -f *.o FraudDetector
