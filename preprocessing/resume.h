@@ -110,5 +110,7 @@ bool isEnvironment(string s) {
   return false;
 }
 
-
-
+bool isPresent(vector<string> v, string s) {
+	for(int i=0;i<v.size();i++) if(v[i]==s) return true;
+	return false;
+}
