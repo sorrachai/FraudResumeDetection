@@ -38,14 +38,14 @@ vector<string> bagOfWordsFromString(string teststr) {
   //string teststr("The quick brown fox:test1,test2'test3\"test4");
   //teststr=tolower(teststr);
   char *myString = (char *)teststr.c_str();
-  char *p = strtok(myString, " :;,'\"");
+  char *p = strtok(myString, " .:;,'\"");
   while (p) {
 	if(!isPresent(stopwords,string(p))) bag.push_back(string(p));
     //printf ("Token: %s\n", p);
-    p = strtok(NULL, " :;,'\"");
+    p = strtok(NULL, " .:;,'\"");
   }
   cout<<"Line: "<<teststr<<" bag =";
-  for(int i=0;i<bag.size();i++) cout<<bag[i]<<" ";
+  for(int i=0;i<bag.size();i++) cout<<bag[i]<<"_";
   cout<<endl;
   //cin>>teststr;
   cin.get();  
@@ -55,7 +55,7 @@ vector<string> bagOfWordsFromString(string teststr) {
 
 int main ()
 {
-    ifstream fin("stopwords.txt");
+    ifstream fin("preprocessing/stopwords.txt");
     string tmp;
     while(fin>>tmp)
 	  stopwords.push_back(tmp);
@@ -63,7 +63,7 @@ int main ()
 	string sumtest("SUMMARY");
 
 	//ifstream file("testresume.txt");
-	ifstream file("allresumes-.txt");
+	ifstream file("preprocessing/allresumes-2.txt");
 	//ifstream file("fraudresumes.txt");
 	string line;
 	state last=null,cur=beg;
@@ -73,7 +73,7 @@ int main ()
 	  //cout<<line<<endl;
 	  line=strip(tolower(line));
 	  bagOfWordsFromString(line);
-      content.pb(line);
+    content.pb(line);
 	  if(isSummary(line)) {
 		  //cout<<"********Summary matched!********\n";
 			update(cur_resume,last,cur,summ,content);
