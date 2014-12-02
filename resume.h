@@ -4,11 +4,6 @@
 
 #include <map>
 using namespace std;
-
-#define DELIM " .:;,'\""
-
-#define BEGIN_REGEX "cs(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)"
-
 enum SectionType{
 	SUMM,
 	SKILL,
@@ -19,17 +14,30 @@ enum SectionType{
 	EDU,
 	NoSectionType
 };
+#define DELIM " .:;,'\""
+
+#define BEGIN_REGEX "cs(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)"
+
+
 
 class Resume {
 	public:
+		Resume(){}
 	  Resume(string filename) {
 		  //TODO: - Vaibhav
 		}
-	  map<SectionType,vector<string> > sections_;
-		void AddSection(SectionType s,vector<string> &content) {
-			sections_.insert(pair<SectionType,vector<string> >(s,content));
-			content = vector<string>();
+	  map<SectionType,vector<vector<string>> > sections_;
+		void AddSection(SectionType s,vector<vector<string>> &content) {
+			sections_.insert(pair<SectionType,vector<vector<string>> >(s,content));
+			content = vector<vector<string>>();
 		}
+		Resume & operator=(const Resume &rhs) {
+			if (this != &rhs) {
+				sections_ = rhs.sections_;
+			}
+			return *this;
+		}
+	  
 };
 
 #endif
