@@ -2,7 +2,6 @@
 
 #define RESUME_H
 
-#include <map>
 #include <vector>
 
 
@@ -22,7 +21,8 @@ vector<string> section_types{"Summary","Skill","Experience","Beginning",\
                              "No-section-type"};
 #define DELIM " .:;,'\"-"
 
-#define BEGIN_REGEX "cs(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)"
+//#define BEGIN_REGEX "cs([0-9]+),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)"
+#define BEGIN_REGEX "CS(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),"
 
 
 #include "utilities.h"
@@ -30,24 +30,36 @@ using namespace std;
 
 
 class Resume {
-    map<SectionType,vector<string> > section_lines_;
+    vector<vector<string> > full_section_string_;
+    //map<SectionType,vector<string> > full_section_string_;
   public:
-    Resume(){}
-    map<SectionType,vector<vector<string>> > sections_;
+    Resume() {
+      sections_ = vector<section> (8,section());//TODO dont hardcode this value
+      full_section_string_ = vector<vector<string>> (8,line()); //TODO dont hardcode this value
+    }
+    vector<section > sections_;
     Resume & operator=(const Resume &rhs) {
       if (this != &rhs) {
         sections_ = rhs.sections_;
+        full_section_string_ = rhs.full_section_string_;
       }
       return *this;
     }
-    map<SectionType,vector<vector<string> > > getSections() const {
+    vector<vector<vector<string> > > getSections() const {
       return sections_;
-    }  
-    map<SectionType,vector<string> > getSectionLines() const {
-      return section_lines_;
+    } 
+     
+    vector<vector<string>> getSections(SectionType type) const {
+      return sections_[type];
+    }
+
+    vector<vector<string> > getFullSectionString() const {
+      return full_section_string_;
     } 
     Resume(string stopwords_file, string resume_file, string vocab_file) {
       //TODO: Populate this resume's wordBag_ - Vaibhav
+      sections_ = vector<section> (8);//TODO dont hardcode this value
+      full_section_string_ = vector< vector<string>> (8); //TODO dont hardcode this value
       ProcessResumeIntoWordBag(stopwords_file, resume_file, vocab_file);
       ProcessResumeIntoSections(stopwords_file, resume_file);
     }
@@ -152,57 +164,56 @@ class Resume {
     }
     
     void AddSection(const SectionType &s,vector<vector<string> > &section_wordbag) {
-      auto search = sections_.find(s);
-      if(search != sections_.end()) {
-        //cout<<"****SectionType = "<<s<<" already present****"<<endl;
-        vector<vector<string> > tmp = sections_[s];
-        for(int i=0;i<section_wordbag.size();i++) {
-          tmp.push_back(section_wordbag[i]);
-        }
-        sections_[s]=tmp;
-      }
-      else {
-        //cout<<"**** Creating new SectionType = "<<s<<"****"<<endl;
-        sections_.insert(pair<SectionType,vector<vector<string> > >(s,section_wordbag));
-      }
-      section_wordbag = vector<vector<string> >();
-    }
-    
-    void AddSection(const SectionType &s,vector<vector<string> > &section_wordbag,
-                    line &section_lines) {
-      auto search = sections_.find(s);
-      if(search != sections_.end()) {
+      vector<vector<string> > search = sections_[s];
+      if(search.size() != 0) {
         cout<<"****SectionType = "<<section_types[s]<<" already present****"<<endl;
         vector<vector<string> > tmp = sections_[s];
         for(int i=0;i<section_wordbag.size();i++) {
           tmp.push_back(section_wordbag[i]);
         }
         sections_[s]=tmp;
-
-
       }
       else {
         cout<<"**** Creating new SectionType = "<<section_types[s]<<"****"<<endl;
-        sections_.insert(pair<SectionType,vector<vector<string> > >(s,section_wordbag));
+        sections_[s]=section_wordbag;
+      }
+      section_wordbag = vector<vector<string> >();
+    }
+    
+    void AddSection(const SectionType &s,vector<vector<string> > &section_wordbag,
+                    line &section_lines) {
+      vector<vector<string> > search = sections_[s];
+      if(search.size() != 0) {
+        cout<<"****SectionType = "<<section_types[s]<<" already present****"<<endl;
+        vector<vector<string> > tmp = sections_[s];
+        for(int i=0;i<section_wordbag.size();i++) {
+          tmp.push_back(section_wordbag[i]);
+        }
+        sections_[s]=tmp;
+      }
+      else {
+        cout<<"**** Creating new SectionType = "<<section_types[s]<<"****"<<endl;
+        sections_[s]=section_wordbag;
+        //sections_.insert(pair<SectionType,vector<vector<string> > >(s,section_wordbag));
       }
       
-      auto search_line = section_lines_.find(s);
-      if(search_line != section_lines_.end()) {
-        cout<<"****SectionType = "<<section_types[s]<<" already present in section_lines_****"<<endl;
-        vector<string> tmp_line = section_lines_[s];
+      auto search_line = full_section_string_[s];
+      if(search_line.size() != 0) {
+        cout<<"****SectionType = "<<section_types[s]<<" already present in full_section_string_****"<<endl;
+        vector<string> tmp_line = full_section_string_[s];
         for(int i=0;i<section_lines.size();i++) {
           tmp_line.push_back(section_lines[i]);
         }
-        section_lines_[s]=tmp_line;
+        full_section_string_[s]=tmp_line;
       }
       else {
-        cout<<"**** Creating new SectionType = "<<section_types[s]<<" in section_lines_****"<<endl;
-        section_lines_.insert(pair<SectionType,vector<string> >(s,section_lines));
+        cout<<"**** Creating new SectionType = "<<section_types[s]<<" in full_section_string_****"<<endl;
+        full_section_string_[s] = section_lines;
       }
       
       section_wordbag = vector<vector<string> >();
-      section_lines = vector<string> ();
-      cout<<"section_lines_.size() = "<<section_lines_.size()<<endl;
+      section_lines = vector<string>();
+      cout<<"full_section_string_.size() = "<<full_section_string_.size()<<endl;
       cout<<"sections_.size() = "<<sections_.size()<<endl;
     }
 };
@@ -213,11 +224,14 @@ namespace distance_util {
     //cout<<"1"<<endl;
     line word_bag1,word_bag2;
     //cout<<"2"<<endl;
-    map<SectionType, vector< vector< string> > > map1=r1.getSections();
-    map<SectionType, vector< vector< string> > > map2=r2.getSections();
+    vector< vector< vector< string> > > vec1=r1.getSections();
+    //map<SectionType, vector< vector< string> > > map1=r1.getSections();
+    vector<vector< vector< string> > > vec2=r2.getSections();
+    //map<SectionType, vector< vector< string> > > map2=r2.getSections();
     //cout<<"3"<<endl;
-    for(auto &t: map1) {
-      vector<vector<string> > tmp = t.second;
+    for(auto &t: vec1) {
+      vector<vector<string> > tmp = t;
+      //vector<vector<string> > tmp = t.second;
       for(int j=0;j<tmp.size();j++) {
         for(int k=0;k<tmp[j].size();k++) {
           word_bag1.push_back(tmp[j][k]);
@@ -226,8 +240,9 @@ namespace distance_util {
       }
     }
     //cout<<"4"<<endl;
-    for(auto &t: map2) {
-      vector<vector<string> > tmp = t.second;
+    for(auto &t: vec2) {
+      vector<vector<string> > tmp = t;
+      //vector<vector<string> > tmp = t.second;
         for(int j=0;j<tmp.size();j++) {
           for(int k=0;k<tmp[j].size();k++) {
             word_bag2.push_back(tmp[j][k]);
@@ -262,17 +277,20 @@ namespace matching_util {
 			//skipping the case NoSectionType
 			SectionType type = static_cast<SectionType>(i);
 			vector<pair_line> pl;
-			auto section1_n = r1.getSections().count(type);
-			auto section2_n = r2.getSections().count(type);
+			auto section1 = r1.getSections(type);
+			//auto section1_n = r1.getSections().count(type);
+      //cout<<"r2.getSections().size() = "<<r2.getSections().size()<<endl;
+			auto section2 = r2.getSections(type);
 			int sss;
 
-			if (section1_n == 0 || section2_n == 0) {
+			if (section1.size() == 0 || section2.size() == 0) {
 				sss = 0;
 				ps.push_back(PairSection(type, vector<pair_line>(), sss));
 			}
 			else {
-			  auto section1 = r1.getSections().at(type);
-			  auto section2 = r2.getSections().at(type);
+			  auto section1 = r1.getSections()[type];
+			  //auto section1 = r1.getSections().at(type);
+			  auto section2 = r2.getSections()[type];
         sss = SectionSimilarity(section1, section2, pl);
 				ps.push_back(PairSection(type, pl, sss));
 			}
