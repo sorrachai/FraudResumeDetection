@@ -154,7 +154,8 @@ namespace distance_util {
               back_inserter(uni));
     float num=(float)(inter.size());
     float denom=(float)(uni.size());
-    cout<<num<<" "<<denom<<" "<<endl;
+    //cout<<num<<" "<<denom<<" "<<endl;
+    if(num == 0 || denom == 0) return 0;
     return int((num/denom)*1000);
 
   }
@@ -1444,7 +1445,11 @@ namespace matching_util {
 
 			size_t n = s1.size();
 			size_t m = s2.size();
-
+      cout << "n,m =" << n << " " << m  <<endl;
+      if(n==1 || m==1) {
+        cout<<"Bailing out of MaxBipartiteMatching"<<endl;
+        return 0;
+      }
 			cell** t = (cell **)malloc(n * sizeof(cell*));
 			cell** table = (cell**)malloc(n * sizeof(cell*));
 
@@ -1456,9 +1461,13 @@ namespace matching_util {
 				for (int j = 0; j < m; j++)
 				{
 					*(*(table + i) + j) = *(*(t + i) + j) = distance_util::Jaccard(s1[i], s2[j]);
+          cout<<distance_util::Jaccard(s1[i], s2[j])<<" ";
 				}
+        cout<<endl;
 			}
+      cout<<"Before kuhn_match"<<endl;
 			ssize_t** assignment = kuhn_match(table, n, m);
+      cout<<"After kuhn_match"<<endl;
 			cell sum = 0;
 			for (int i = 0; i < n; i++)
 			{

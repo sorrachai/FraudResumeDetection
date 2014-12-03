@@ -15,7 +15,7 @@ using namespace std;
 
 int main(int argc, char * argv[]) {
   vector<int> params={100,10};
-  ResumeDetection test(params,"testresume.txt","vocabulary.txt","stopwords.txt");
+  ResumeDetection test(params,"allresumes-2.txt","vocabulary.txt","stopwords.txt");
   Resume r("stopwords.txt","testresume.txt","vocabulary.txt");
   Resume r2("stopwords.txt","testresume.txt","vocabulary.txt");
   vector<Resume> top_t_database;

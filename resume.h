@@ -7,14 +7,14 @@
 
 
 enum SectionType{
-  SUMM,
-  SKILL,
-  EXP,
-  BEG,
-  RESP,
-  ENV,
-  EDU,
-  NOSECTIONTYPE
+  SUMM=0,
+  SKILL=1,
+  EXP=2,
+  BEG=3,
+  RESP=4,
+  ENV=5,
+  EDU=6,
+  NOSECTIONTYPE=7
 };
 #define DELIM " .:;,'\""
 
@@ -204,7 +204,7 @@ namespace distance_util {
               back_inserter(uni));
     float num=(float)(inter.size());
     float denom=(float)(uni.size());
-    cout<<num<<" "<<denom<<" "<<endl;
+    //cout<<num<<" "<<denom<<" "<<endl;
     return int((num/denom)*1000);
 	}
 }
@@ -216,15 +216,18 @@ namespace matching_util {
 			//skipping the case NoSectionType
 			SectionType type = static_cast<SectionType>(i);
 			vector<pair_line> pl;
-			auto section1_itr = r1.getSections().find(type);
-			auto section2_itr = r2.getSections().find(type);
+			auto section1_n = r1.getSections().count(type);
+			auto section2_n = r2.getSections().count(type);
 			int sss;
-			if (section1_itr == end(r1.sections_) || section2_itr == end(r2.sections_)) {
+
+			if (section1_n == 0 || section2_n == 0) {
 				sss = 0;
 				ps.push_back(PairSection(type, vector<pair_line>(), sss));
 			}
 			else {
-				sss = SectionSimilarity(section1_itr->second, section2_itr->second, pl);
+			  auto section1 = r1.getSections().at(type);
+			  auto section2 = r2.getSections().at(type);
+        sss = SectionSimilarity(section1, section2, pl);
 				ps.push_back(PairSection(type, pl, sss));
 			}
 			//sss : section similarity score
