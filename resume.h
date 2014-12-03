@@ -16,7 +16,11 @@ enum SectionType{
   EDU=6,
   NOSECTIONTYPE=7
 };
-#define DELIM " .:;,'\""
+
+vector<string> section_types{"Summary","Skill","Experience","Beginning",\
+                             "Responsibilities","Environment","Education",\
+                             "No-section-type"};
+#define DELIM " .:;,'\"-"
 
 #define BEGIN_REGEX "cs(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*)"
 
@@ -26,6 +30,7 @@ using namespace std;
 
 
 class Resume {
+    map<SectionType,vector<string> > section_lines_;
   public:
     Resume(){}
     map<SectionType,vector<vector<string>> > sections_;
@@ -37,7 +42,10 @@ class Resume {
     }
     map<SectionType,vector<vector<string> > > getSections() const {
       return sections_;
-    }   
+    }  
+    map<SectionType,vector<string> > getSectionLines() const {
+      return section_lines_;
+    } 
     Resume(string stopwords_file, string resume_file, string vocab_file) {
       //TODO: Populate this resume's wordBag_ - Vaibhav
       ProcessResumeIntoWordBag(stopwords_file, resume_file, vocab_file);
@@ -142,22 +150,60 @@ class Resume {
       last_section=_cur_section;
       content = vector<vector<string> >();
     }
-
-    void AddSection(const SectionType &s,vector<vector<string> > &content) {
+    
+    void AddSection(const SectionType &s,vector<vector<string> > &section_wordbag) {
       auto search = sections_.find(s);
       if(search != sections_.end()) {
         //cout<<"****SectionType = "<<s<<" already present****"<<endl;
         vector<vector<string> > tmp = sections_[s];
-        for(int i=0;i<content.size();i++) {
-          tmp.push_back(content[i]);
+        for(int i=0;i<section_wordbag.size();i++) {
+          tmp.push_back(section_wordbag[i]);
         }
         sections_[s]=tmp;
       }
       else {
         //cout<<"**** Creating new SectionType = "<<s<<"****"<<endl;
-        sections_.insert(pair<SectionType,vector<vector<string> > >(s,content));
+        sections_.insert(pair<SectionType,vector<vector<string> > >(s,section_wordbag));
       }
-      content = vector<vector<string> >();
+      section_wordbag = vector<vector<string> >();
+    }
+    
+    void AddSection(const SectionType &s,vector<vector<string> > &section_wordbag,
+                    line &section_lines) {
+      auto search = sections_.find(s);
+      if(search != sections_.end()) {
+        cout<<"****SectionType = "<<section_types[s]<<" already present****"<<endl;
+        vector<vector<string> > tmp = sections_[s];
+        for(int i=0;i<section_wordbag.size();i++) {
+          tmp.push_back(section_wordbag[i]);
+        }
+        sections_[s]=tmp;
+
+
+      }
+      else {
+        cout<<"**** Creating new SectionType = "<<section_types[s]<<"****"<<endl;
+        sections_.insert(pair<SectionType,vector<vector<string> > >(s,section_wordbag));
+      }
+      
+      auto search_line = section_lines_.find(s);
+      if(search_line != section_lines_.end()) {
+        cout<<"****SectionType = "<<section_types[s]<<" already present in section_lines_****"<<endl;
+        vector<string> tmp_line = section_lines_[s];
+        for(int i=0;i<section_lines.size();i++) {
+          tmp_line.push_back(section_lines[i]);
+        }
+        section_lines_[s]=tmp_line;
+      }
+      else {
+        cout<<"**** Creating new SectionType = "<<section_types[s]<<" in section_lines_****"<<endl;
+        section_lines_.insert(pair<SectionType,vector<string> >(s,section_lines));
+      }
+      
+      section_wordbag = vector<vector<string> >();
+      section_lines = vector<string> ();
+      cout<<"section_lines_.size() = "<<section_lines_.size()<<endl;
+      cout<<"sections_.size() = "<<sections_.size()<<endl;
     }
 };
 
@@ -194,7 +240,7 @@ namespace distance_util {
     line inter;
     line uni;
 
-    cout<<"word_bag1.size() = "<<word_bag1.size()<<" word_bag2.size() = "<<word_bag2.size()<<endl;
+    //cout<<"word_bag1.size() = "<<word_bag1.size()<<" word_bag2.size() = "<<word_bag2.size()<<endl;
 
     set_intersection(word_bag1.begin(),word_bag1.end(),
                      word_bag2.begin(),word_bag2.end(),

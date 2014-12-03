@@ -1461,13 +1461,13 @@ namespace matching_util {
 				for (int j = 0; j < m; j++)
 				{
 					*(*(table + i) + j) = *(*(t + i) + j) = distance_util::Jaccard(s1[i], s2[j]);
-          cout<<distance_util::Jaccard(s1[i], s2[j])<<" ";
+          //cout<<distance_util::Jaccard(s1[i], s2[j])<<" ";
 				}
-        cout<<endl;
+        //cout<<endl;
 			}
-      cout<<"Before kuhn_match"<<endl;
+      //cout<<"Before kuhn_match"<<endl;
 			ssize_t** assignment = kuhn_match(table, n, m);
-      cout<<"After kuhn_match"<<endl;
+      //cout<<"After kuhn_match"<<endl;
 			cell sum = 0;
 			for (int i = 0; i < n; i++)
 			{

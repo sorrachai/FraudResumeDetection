@@ -95,7 +95,7 @@ class ResumeDetection {
       vector<int> k_score;
       vector<vector<PairSection>> k_ps;
       for (const auto & d : idx_top_k_database) {
-          printf("idx_top_k: %d \n",d);
+          //printf("idx_top_k: %d \n",d);
         vector<PairSection> ps;
         int score = matching_util::ResumeSimilarity(r, database_[d], ps);
         k_score.push_back(score);
@@ -137,9 +137,10 @@ class ResumeDetection {
     void UpdateSection(Resume& cur_resume,
                        SectionType& last_section,
                        SectionType _cur_section,
-                       vector<vector<string> > &content){
+                       vector<vector<string> > &section_wordbag,
+                       vector<string> &section_lines ){
       if(last_section!= NOSECTIONTYPE)
-        cur_resume.AddSection(last_section,content);
+        cur_resume.AddSection(last_section,section_wordbag,section_lines);
       last_section=_cur_section;
       if(_cur_section==BEG) {
         database_.push_back(cur_resume);
@@ -149,13 +150,15 @@ class ResumeDetection {
         //Indicates end of resume database file
         database_.push_back(cur_resume);
       }
-      content = vector<vector<string> >();
+      section_wordbag = vector<vector<string> >();
+      section_lines = vector<string>();
     }
     void PreprocessResumes(string stopwords_file,
                            string resumes_file
                            ) 
     {
-      vector<vector<string> > content;
+      vector<line > section_wordbag;
+      line section_lines;
       Resume cur_resume;
       ifstream fin(stopwords_file.c_str());
       string tmp;
@@ -165,77 +168,91 @@ class ResumeDetection {
       //ifstream file("testresume.txt");
       ifstream file(resumes_file.c_str());
       //ifstream file("fraudresumes.txt");
-      string line;
+      string line,raw_line;
       SectionType last_section=NOSECTIONTYPE;
       //int num_skill=0,num_summary=0,num_exp=0,num_resp=0,num_env=0,num_edu=0;
       int section_n[] = {0,0,0,0,0,0,0};
     
-      while(getline(file,line)) {
-        //cout<<line<<endl;
-        line=string_util::strip(string_util::tolower(line));
+      while(getline(file,raw_line)) {
+        cout<<raw_line<<endl;
+        line=string_util::strip(string_util::tolower(raw_line));
         vector<string> tmp_bag = string_util::BagOfWordsFromString(stopwords_,line);
-        content.push_back(tmp_bag);
+        section_wordbag.push_back(tmp_bag);
+        section_lines.push_back(raw_line);
         if(resume_util::IsSummary(line)) {
-          //cout<<"********Summary matched!********\n";
-          UpdateSection(cur_resume,last_section,SUMM,content);
+          cout<<"********Summary matched!********\n";
+          UpdateSection(cur_resume,last_section,SUMM,section_wordbag,section_lines);
           //num_summary++;
           section_n[last_section]++;
         }
         if(resume_util::IsSkills(line)) {
-          //cout<<"********Skills matched!********\n";
-          UpdateSection(cur_resume,last_section,SKILL,content);
+          cout<<"********Skills matched!********\n";
+          UpdateSection(cur_resume,last_section,SKILL,section_wordbag,section_lines);
           //num_skill++;
           section_n[last_section]++;
         }
         if(resume_util::IsExperience(line)) {
-          //cout<<"********Experience matched!********\n";
-          UpdateSection(cur_resume,last_section,EXP,content);
+          cout<<"********Experience matched!********\n";
+          UpdateSection(cur_resume,last_section,EXP,section_wordbag,section_lines);
           //num_exp++;
           section_n[last_section]++;
         }
         if(regex_match(line,regex(BEGIN_REGEX))) {
-          //cout<<"********Begin matched!********\n";
-          UpdateSection(cur_resume,last_section,BEG,content);
+          cout<<"********Begin matched!********\n";
+          UpdateSection(cur_resume,last_section,BEG,section_wordbag,section_lines);
           section_n[last_section]++;
         }
         if(resume_util::IsResponsibilities(line)) {
-          //cout<<"********Responsibilities matched!********\n";
-          UpdateSection(cur_resume,last_section,RESP,content);
+          cout<<"********Responsibilities matched!********\n";
+          UpdateSection(cur_resume,last_section,RESP,section_wordbag,section_lines);
           section_n[last_section]++;
         }
         if(resume_util::IsEnvironment(line)) {
-          //cout<<"********Environment matched!********\n";
-          UpdateSection(cur_resume,last_section,ENV,content);
+          cout<<"********Environment matched!********\n";
+          UpdateSection(cur_resume,last_section,ENV,section_wordbag,section_lines);
           section_n[last_section]++;
         }
         if(resume_util::IsEducation(line)) {
-          //cout<<"********num_eduation matched!********\n";
-          UpdateSection(cur_resume,last_section,EDU,content);
+          cout<<"********Eduation matched!********\n";
+          UpdateSection(cur_resume,last_section,EDU,section_wordbag,section_lines);
           section_n[last_section]++;
         }
       }
-      UpdateSection(cur_resume,last_section,NOSECTIONTYPE,content);
+      UpdateSection(cur_resume,last_section,NOSECTIONTYPE,section_wordbag,section_lines);
       section_n[last_section]++;
       database_.erase(begin(database_));
-      for(auto i=database_[0].sections_.begin();i!=database_[0].sections_.end();++i){
-        cout<<"****SectionType = "<<i->first<<"****"<<endl;
+      /*for(auto i=database_[0].sections_.begin();i!=database_[0].sections_.end();++i){
+        cout<<"****SectionType = "<<section_types[i->first]<<"****"<<endl;
         cout<<"Lines = "<<endl;
         vector<vector<string> > tmp = i->second;
         for(int j=0;j<tmp.size();j++) {
           for(int k=0;k<tmp[j].size();k++)
             cout<<tmp[j][k]<<endl;
         }
+      }*/
+
+      cout<<"database_[0].getSectionLines().size() = "<<database_[0].getSectionLines().size()<<endl;
+      cout<<"database_[1].getSectionLines().size() = "<<database_[1].getSectionLines().size()<<endl;
+      for(auto &i: database_[0].getSectionLines()) {
+        cout<<"****SectionType = "<<section_types[i.first]<<"****"<<endl;
+        cout<<"Lines = "<<endl;
+        vector<string> tmp = i.second;
+        for(int j=0;j<tmp.size();j++) {
+            cout<<tmp[j]<<endl;
+        }
       }
-      SectionType type = static_cast<SectionType>(0);
-      auto section1_itr = database_[0].getSections().count(type);
+
+      //SectionType type = static_cast<SectionType>(0);
+      //auto section1_itr = database_[0].getSections().count(type);
       //printf("Type: %d, section1.size()=%d\n",type,section1_itr.size());
       //cout<<"Type: %d"<<type<<" section1.size()="<<section1_itr.size()<<endl;
       //cout<<"Comparison result: "<<(section1_itr==database_[0].getSections().end());
-      cout<<"count = "<<section1_itr<<endl;
+      //cout<<"count = "<<section1_itr<<endl;
 
 
 
-      cout<<"getSections().size() = "<<database_[0].getSections().size()<<endl;
+      cout<<"database_[0].getSections().size() = "<<database_[0].getSections().size()<<endl;
+      cout<<"database_[1].getSections().size() = "<<database_[1].getSections().size()<<endl;
       cout<<"No of resumes: "<<database_.size()<<endl;
       cout<<"Skill = "<<section_n[SKILL]<<endl;
       cout<<"Edu = "<<section_n[EDU]<<endl;
@@ -243,6 +260,7 @@ class ResumeDetection {
       cout<<"resp = "<<section_n[RESP]<<endl;
       cout<<"env = "<<section_n[ENV]<<endl;
       cout<<"Summary = "<<section_n[SUMM]<<endl;
+
     }
 };
 
