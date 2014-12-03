@@ -113,7 +113,7 @@ class Resume {
           UpdateSection(last_section,EXP,content);
           num_exp++;
         }
-        if(regex_match(line,regex(BEGIN_REGEX))) {
+        if(resume_util::IsBegin(line)) {
           //cout<<"********Begin matched!********\n";
           UpdateSection(last_section,BEG,content);
           //cout<<last_section<<" "<<endl;
@@ -182,20 +182,7 @@ class Resume {
     
     void AddSection(const SectionType &s,vector<vector<string> > &section_wordbag,
                     line &section_lines) {
-      vector<vector<string> > search = sections_[s];
-      if(search.size() != 0) {
-        cout<<"****SectionType = "<<section_types[s]<<" already present****"<<endl;
-        vector<vector<string> > tmp = sections_[s];
-        for(int i=0;i<section_wordbag.size();i++) {
-          tmp.push_back(section_wordbag[i]);
-        }
-        sections_[s]=tmp;
-      }
-      else {
-        cout<<"**** Creating new SectionType = "<<section_types[s]<<"****"<<endl;
-        sections_[s]=section_wordbag;
-        //sections_.insert(pair<SectionType,vector<vector<string> > >(s,section_wordbag));
-      }
+      AddSection(s,section_wordbag); 
       
       auto search_line = full_section_string_[s];
       if(search_line.size() != 0) {

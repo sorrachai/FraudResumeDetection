@@ -77,6 +77,12 @@ namespace string_util {
 }
 
 namespace resume_util {  
+  
+  bool IsBegin(string s) {
+    int pos=s.find("CS0");
+    if(pos==0) return true;
+    return false;
+  }
 
   bool IsSection(string s,string section) {
   	int pos=s.find(section);
