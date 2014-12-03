@@ -4,8 +4,10 @@
 
 #include "edge.h"
 #include <cstring>
-
-
+#include "resume.h"
+#include <algorithm>
+#include <vector>
+using namespace std;
 
 typedef vector<vector<string>> section;
 typedef Edge pair_line;
@@ -16,7 +18,7 @@ class PairSection;
 typedef vector<string> line;
 typedef vector<pair<int, PairSection>> evidence;
 
-
+//class Resume;
 
 namespace string_util {
   char tolower(char in){
@@ -78,9 +80,9 @@ namespace resume_util {
 
   bool IsSection(string s,string section) {
   	int pos=s.find(section);
-  	//int len = s.length();
-  	if(pos==0 ) return true;
-  	//if(pos==0 && pos<len && len-pos-section.length()<=3) return true;
+  	int len = s.length();
+  	//if(pos==0 ) return true;
+  	if(pos==0 && pos<len && len-pos-section.length()<=10) return true;
   	return false;
   }
   
@@ -138,17 +140,26 @@ namespace resume_util {
   
 }
 
-namespace distance {
-	int Jaccard(const line &v1, const line &v2) {
-		//TODO:  Vaibhav
-		return 0;
-	}
+namespace distance_util {
+  int Jaccard(line v1, line v2) {
+    sort(v1.begin(),v1.end());
+    sort(v2.begin(),v2.end());
+    line inter;
+    line uni;
+    set_intersection(v1.begin(),v1.end(),
+                     v2.begin(),v2.end(),
+                     back_inserter(inter));
+    set_union(v1.begin(),v1.end(),
+              v2.begin(),v2.end(),
+              back_inserter(uni));
+    float num=(float)(inter.size());
+    float denom=(float)(uni.size());
+    cout<<num<<" "<<denom<<" "<<endl;
+    return int((num/denom)*1000);
 
-	int Jaccard(const Resume& r1, const Resume& r2) {
-		//TODO: Vaibhav
-		return 0;
-	}
+  }
 }
+
 namespace matching_util {
 
 	//Credit: https://github.com/maandree/hungarian-algorithm-n3
@@ -1444,7 +1455,7 @@ namespace matching_util {
 				*(table + i) = (cell *)malloc(m * sizeof(cell));
 				for (int j = 0; j < m; j++)
 				{
-					*(*(table + i) + j) = *(*(t + i) + j) = distance::Jaccard(s1[i], s2[j]);
+					*(*(table + i) + j) = *(*(t + i) + j) = distance_util::Jaccard(s1[i], s2[j]);
 				}
 			}
 			ssize_t** assignment = kuhn_match(table, n, m);
@@ -1473,35 +1484,12 @@ namespace matching_util {
 		return MaxBipartiteMatching(s1,s2,pl);
 	}
 
-	
-	int ResumeSimilarity(const Resume& r1, const Resume& r2, vector<PairSection> &ps) {
-		int max = -1;
-		for (int i = SUMM; i != NoSectionType; i++)  {
-			//skipping the case NoSectionType
-			SectionType type = static_cast<SectionType>(i);
-			vector<pair_line> pl;
-			auto section1_itr = r1.sections_.find(type);
-			auto section2_itr = r2.sections_.find(type);
-			int sss;
-			if (section1_itr == end(r1.sections_) || section2_itr == end(r2.sections_)) {
-				sss = 0;
-				ps.push_back(PairSection(type, vector<pair_line>(), sss));
-			}
-			else {
-				sss = SectionSimilarity(section1_itr->second, section2_itr->second, pl);
-				ps.push_back(PairSection(type, pl, sss));
-			}
-			//sss : section similarity score
-			max = max > sss ? max : sss;
-		}
-		return max;
-	}
-
 	//Credit: http://stackoverflow.com/questions/10580982/c-sort-keeping-track-of-indices
 	template <typename T>
 	std::vector<size_t> ordered(std::vector<T> const& values) {
 		std::vector<size_t> indices(values.size());
-		std::iota(begin(indices), end(indices), static_cast<size_t>(0));
+	  for(int i=0;i<values.size();i++) indices[i] = i;
+    //iota(begin(indices), end(indices), static_cast<size_t>(0));
 		std::sort(
 			begin(indices), end(indices),
 			[&](size_t a, size_t b) { return values[a] < values[b]; }
