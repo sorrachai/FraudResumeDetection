@@ -33,6 +33,14 @@ class ResumeDetection {
       //Populate database_
       //  For each resume, create a wordBag per line per section
       PreprocessResumes(stopwords_file, resumes_file);
+      if(k_>database_.size()) {
+        cout<<"Parameter k greater than number of resumes in database file, aborting..."<<endl;
+        exit(1);
+      }
+      if(k_<t_) {
+        cout<<"Parameter k less than t, aborting..."<<endl;
+        exit(1);
+      }
       //  For each resume, create a vector<bool> wordBag
     }
 
