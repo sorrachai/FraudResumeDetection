@@ -26,6 +26,7 @@ vector<string> section_types{"Summary","Skill","Experience","Beginning",\
 
 
 #include "utilities.h"
+#include "Assignment.h"
 using namespace std;
 
 
@@ -87,49 +88,49 @@ class Resume {
       //ifstream file("testresume.txt");
       ifstream file(resumes_file.c_str());
       //ifstream file("fraudresumes.txt");
-      string line;
+      string line, raw_line;
       SectionType last_section=NOSECTIONTYPE;
       int num_skill=0,num_summary=0,num_exp=0,num_resp=0,num_env=0,num_edu=0;
     
-      while(getline(file,line)) {
-        //cout<<line<<endl;
-        line=string_util::strip(string_util::tolower(line));
+      while(getline(file,raw_line)) {
+        cout<<raw_line<<endl;
+        line=string_util::strip(string_util::tolower(raw_line));
         vector<string> tmp_bag = string_util::BagOfWordsFromString(stopwords,line);
         content.push_back(tmp_bag);
         //content.push_back(line);
-        if(resume_util::IsSummary(line)) {
-          //cout<<"********Summary matched!********\n";
+        if(resume_util::IsSummary(string_util::tolower(raw_line))) {
+          cout<<"********Summary matched!********\n";
           UpdateSection(last_section,SUMM,content);
           num_summary++;
           //cout<<last_section<<endl;
         }
-        if(resume_util::IsSkills(line)) {
-          //cout<<"********Skills matched!********\n";
+        if(resume_util::IsSkills(string_util::tolower(raw_line))) {
+          cout<<"********Skills matched!********\n";
           UpdateSection(last_section,SKILL,content);
           num_skill++;
         }
-        if(resume_util::IsExperience(line)) {
-          //cout<<"********Experience matched!********\n";
+        if(resume_util::IsExperience(string_util::tolower(raw_line))) {
+          cout<<"********Experience matched!********\n";
           UpdateSection(last_section,EXP,content);
           num_exp++;
         }
-        if(resume_util::IsBegin(line)) {
-          //cout<<"********Begin matched!********\n";
+        if(resume_util::IsBegin(raw_line)) {
+          cout<<"********Begin matched!********\n";
           UpdateSection(last_section,BEG,content);
           //cout<<last_section<<" "<<endl;
         }
-        if(resume_util::IsResponsibilities(line)) {
-          //cout<<"********Responsibilities matched!********\n";
+        if(resume_util::IsResponsibilities(string_util::tolower(raw_line))) {
+          cout<<"********Responsibilities matched!********\n";
           UpdateSection(last_section,RESP,content);
           num_resp++;
         }
-        if(resume_util::IsEnvironment(line)) {
-          //cout<<"********Environment matched!********\n";
+        if(resume_util::IsEnvironment(string_util::tolower(raw_line))) {
+          cout<<"********Environment matched!********\n";
           UpdateSection(last_section,ENV,content);
           num_env++;
         }
-        if(resume_util::IsEducation(line)) {
-          //cout<<"********Eduation matched!********\n";
+        if(resume_util::IsEducation(string_util::tolower(raw_line))) {
+          cout<<"********Eduation matched!********\n";
           UpdateSection(last_section,EDU,content);
           num_edu++;
         }
@@ -144,15 +145,15 @@ class Resume {
       //cout<<"sections_.size() = "<<sections_.size()<<endl;
 
 
-      /*for(auto i=sections_.begin();i!=sections_.end();++i){
-        cout<<"****SectionType = "<<i->first<<"****"<<endl;
-        cout<<"Lines = "<<endl;
-        vector<vector<string> > tmp = i->second;
+      for(auto i=sections_.begin();i!=sections_.end();++i){
+     
+        cout<<"*********Lines = *********"<<endl;
+        vector<vector<string> > tmp = *i;
         for(int j=0;j<tmp.size();j++) {
           for(int k=0;k<tmp[j].size();k++)
             cout<<tmp[j][k]<<endl;
         }
-      }*/
+      }
     }
     void UpdateSection(SectionType& last_section,
                        SectionType _cur_section,
@@ -265,23 +266,19 @@ namespace matching_util {
 			SectionType type = static_cast<SectionType>(i);
 			vector<pair_line> pl;
 			auto section1 = r1.getSections(type);
-			//auto section1_n = r1.getSections().count(type);
-      //cout<<"r2.getSections().size() = "<<r2.getSections().size()<<endl;
 			auto section2 = r2.getSections(type);
 			int sss;
-
+			printf("%d %d\n", section1.size(),section2.size());
 			if (section1.size() == 0 || section2.size() == 0) {
 				sss = 0;
 				ps.push_back(PairSection(type, vector<pair_line>(), sss));
 			}
 			else {
 			  auto section1 = r1.getSections()[type];
-			  //auto section1 = r1.getSections().at(type);
 			  auto section2 = r2.getSections()[type];
-        sss = SectionSimilarity(section1, section2, pl);
+       			 sss = matching_util::SectionSimilarity(section1, section2, pl);
 				ps.push_back(PairSection(type, pl, sss));
 			}
-			//sss : section similarity score
 			max = max > sss ? max : sss;
 		}
 		return max;

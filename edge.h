@@ -2,8 +2,8 @@
 
 #define EDGE_H
 
-struct Edge {
-	Edge(int u, int v, int w) : u(u), v(v), w(v) {}
+struct pair_line {
+	pair_line(int u, int v, int w) : u(u), v(v), w(v) {}
 	int u;
 	int v;
 	int w;
