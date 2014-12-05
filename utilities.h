@@ -93,7 +93,8 @@ namespace resume_util {
   }
   
   bool IsSummary(string s) {
-  	if(IsSection(s,"summary") || IsSection(s,"professional summary"))
+  	if(IsSection(s,"summary") || IsSection(s,"professional summary")
+       || IsSection(s,"summary of qualifications"))
   		return true;
     return false;
   }
@@ -231,7 +232,7 @@ namespace matching_util {
     //iota(begin(indices), end(indices), static_cast<size_t>(0));
 		std::sort(
 			begin(indices), end(indices),
-			[&](size_t a, size_t b) { return values[a] < values[b]; }
+			[&](size_t a, size_t b) { return values[a] > values[b]; }
 		);
 		return indices;
 	}

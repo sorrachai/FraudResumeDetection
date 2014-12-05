@@ -14,6 +14,7 @@ class ResumeDetection {
     //parameters
     int t_;//to be used by FindTopTMatching
     int k_;//to be used by FindKNearestJaccard
+    int detection_threshold_;
       
     //Vocabulary across all resumes
     vector<string> vocabulary_;
@@ -27,6 +28,7 @@ class ResumeDetection {
       //Assign k_,t_ from _parameters respectively
       k_=_parameters[0];
       t_=_parameters[1];
+      detection_threshold_ = _parameters[2];
 
       //Create vocabulary
 
@@ -69,8 +71,36 @@ class ResumeDetection {
       size_of_vocab_ = size_of_vocab;
     }
     */
-
-    void DetectFraud(const Resume& r, 
+    vector<SectionType> getEvidenceForResume(int index,
+                                             const evidence &ev) const {
+      vector<SectionType> ret;
+      for(auto i=0;i<ev.size();i++) {
+        if(ev[i].first==index) {
+          ret.push_back(ev[i].second.section_type_);
+          PairSection psec = ev[i].second;
+          cout<<"For resume index = "<<index<<" "<<psec.w<<endl;
+        }
+      }
+      return ret;
+    }
+    string PostProcessResume(const Resume r,
+                               const vector<SectionType> &target_sectiontype) const {
+      string ret;
+      vector<line> tmp_vec_line = r.getFullSectionString();
+      for(auto i=0;i<tmp_vec_line.size();++i){
+        if(find(target_sectiontype.begin(),target_sectiontype.end(),i) != target_sectiontype.end()) 
+          ret += "<div style=\"color:#FF0000\"><br>";
+        vector<string> tmp_vec_str = tmp_vec_line[i];
+        for(int j=0;j<tmp_vec_str.size();j++) {
+          ret+=tmp_vec_str[j];
+          ret+="<br>";
+        }
+        if(find(target_sectiontype.begin(),target_sectiontype.end(),i) != target_sectiontype.end()) 
+          ret += "</div><br>";
+      }
+      return ret;
+    }
+    bool DetectFraud(const Resume& r, 
                      vector<Resume>& top_t_database,
                      evidence& ev) const {
       //TODO: Find vector<Resume> top_k_database using Jaccard Similarity
@@ -81,7 +111,34 @@ class ResumeDetection {
       //      output - vector<Resume> top_t_database and top_t_evidence 
       //      - Shane
       top_t_database = FindTopTMatching(r,top_k_database,t_,ev);
-
+      string output("<html><body>");
+      bool fraud=false;
+      for(int i=0;i<ev.size();i++) {
+        int index = ev[i].first;
+        if(index==-1) continue;
+        if(ev[i].second.w>detection_threshold_) { 
+          fraud=true;
+          output+="<div style=\"color:#FF0000\"><br>";
+          line tmp_lines=r.getFullSectionString()[i];
+          for(int j=0;j<tmp_lines.size();j++) {
+            output+=tmp_lines[j];
+            output+="<br>";
+          }
+          output+="</div>";
+        }
+        else {
+          line tmp_lines=r.getFullSectionString()[i];
+          for(int j=0;j<tmp_lines.size();j++) {
+            output+=tmp_lines[j];
+            output+="<br>";
+          }
+        }
+      }
+      output+="</body></html>";
+      ofstream fout("output.html");
+      fout<<output<<endl;
+      fout.close();
+      return fraud;
     }
 
   private:
@@ -100,13 +157,17 @@ class ResumeDetection {
                     int t,
                     evidence& ev) const
     {
+      ev = evidence(8);//TODO Dont hardcode
       vector<int> k_score;
       vector<vector<PairSection>> k_ps;
       cout<<"idx_top_k_database.size() = "<<idx_top_k_database.size()<<endl;
       for (const auto & d : idx_top_k_database) {
         printf("idx_top_k: %d \n",d);
-        vector<PairSection> ps;
+        vector<PairSection> ps = vector<PairSection>();
         int score = matching_util::ResumeSimilarity(r, database_[d], ps);
+        for(auto d: ps) {
+          cout<<"FindTopTMatching::ps.w = "<<d.w<<endl;
+        }
         k_score.push_back(score);
         k_ps.push_back(ps);
       }
@@ -127,7 +188,7 @@ class ResumeDetection {
         //skipping the case NOSECTIONTYPE
         int max_similar = -1;
         int index_max = -1;
-        PairSection section_max;
+        PairSection section_max = PairSection();
         SectionType type = static_cast<SectionType>(i);
         auto section_n = r.sections_[type];
         //auto section_n = r.sections_.count(type);
@@ -135,12 +196,14 @@ class ResumeDetection {
           for (int j = 0; j < t; j++){
             if (max_similar < top_t_ps[j][type].w) {
               max_similar = top_t_ps[j][type].w;
-              index_max = j;
               section_max = top_t_ps[j][type];
+              cout<<"FindTopTMatching: max_similar = "<<max_similar<<endl;
+              index_max = j;
+              cout<<"FindTopTMatching: section_max.w = "<<section_max.w<<endl;
             }
           }
         }
-        ev.push_back(make_pair(index_max, section_max));
+        ev[i]=make_pair(index_max, section_max);
       }
       return top_t_database;
     }
@@ -199,11 +262,9 @@ class ResumeDetection {
       int section_n[] = {0,0,0,0,0,0,0};
       SectionType new_section_type = NOSECTIONTYPE; 
       while(getline(file,raw_line)) {
-        //cout<<raw_line<<endl;
+        cout<<raw_line<<endl;
         line=string_util::strip(string_util::tolower(raw_line));
         vector<string> tmp_bag = string_util::BagOfWordsFromString(stopwords_,line);
-        section_wordbag.push_back(tmp_bag);
-        section_lines.push_back(raw_line);
         if(resume_util::IsSummary(string_util::tolower(raw_line))) {
           cout<<"********Summary matched!********\n";
           new_section_type = SUMM;
@@ -246,6 +307,8 @@ class ResumeDetection {
           UpdateSection(cur_resume,last_section,new_section_type,section_wordbag,section_lines);
           section_n[last_section]++;
         }
+        section_wordbag.push_back(tmp_bag);
+        section_lines.push_back(raw_line);
       }
       //UpdateSection(cur_resume,last_section,NOSECTIONTYPE,section_wordbag);
       UpdateSection(cur_resume,last_section,NOSECTIONTYPE,section_wordbag,section_lines);

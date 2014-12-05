@@ -78,63 +78,64 @@ class Resume {
                                    string resumes_file
                                   ) 
     {
-      vector<vector<string> > content;
+      vector<vector<string> > section_wordbag;
+      line section_lines;
       vector<string> stopwords;
       ifstream fin(stopwords_file.c_str());
       string tmp;
       while(fin>>tmp)
         stopwords.push_back(tmp);
     
-      //ifstream file("testresume.txt");
       ifstream file(resumes_file.c_str());
-      //ifstream file("fraudresumes.txt");
       string line, raw_line;
       SectionType last_section=NOSECTIONTYPE;
-      int num_skill=0,num_summary=0,num_exp=0,num_resp=0,num_env=0,num_edu=0;
     
+      int section_n[] = {0,0,0,0,0,0,0};
       while(getline(file,raw_line)) {
         cout<<raw_line<<endl;
         line=string_util::strip(string_util::tolower(raw_line));
         vector<string> tmp_bag = string_util::BagOfWordsFromString(stopwords,line);
-        content.push_back(tmp_bag);
-        //content.push_back(line);
         if(resume_util::IsSummary(string_util::tolower(raw_line))) {
           cout<<"********Summary matched!********\n";
-          UpdateSection(last_section,SUMM,content);
-          num_summary++;
-          //cout<<last_section<<endl;
+          UpdateSection(last_section,SUMM,section_wordbag,section_lines);
+          section_n[last_section]++;
         }
         if(resume_util::IsSkills(string_util::tolower(raw_line))) {
           cout<<"********Skills matched!********\n";
-          UpdateSection(last_section,SKILL,content);
-          num_skill++;
+          UpdateSection(last_section,SKILL,section_wordbag,section_lines);
+          section_n[last_section]++;
         }
         if(resume_util::IsExperience(string_util::tolower(raw_line))) {
           cout<<"********Experience matched!********\n";
-          UpdateSection(last_section,EXP,content);
-          num_exp++;
+          UpdateSection(last_section,EXP,section_wordbag,section_lines);
+          section_n[last_section]++;
         }
         if(resume_util::IsBegin(raw_line)) {
           cout<<"********Begin matched!********\n";
-          UpdateSection(last_section,BEG,content);
-          //cout<<last_section<<" "<<endl;
+          UpdateSection(last_section,BEG,section_wordbag,section_lines);
+          section_n[last_section]++;
         }
         if(resume_util::IsResponsibilities(string_util::tolower(raw_line))) {
           cout<<"********Responsibilities matched!********\n";
-          UpdateSection(last_section,RESP,content);
-          num_resp++;
+          UpdateSection(last_section,RESP,section_wordbag,section_lines);
+          section_n[last_section]++;
         }
         if(resume_util::IsEnvironment(string_util::tolower(raw_line))) {
           cout<<"********Environment matched!********\n";
-          UpdateSection(last_section,ENV,content);
-          num_env++;
+          UpdateSection(last_section,ENV,section_wordbag,section_lines);
+          section_n[last_section]++;
         }
         if(resume_util::IsEducation(string_util::tolower(raw_line))) {
           cout<<"********Eduation matched!********\n";
-          UpdateSection(last_section,EDU,content);
-          num_edu++;
+          UpdateSection(last_section,EDU,section_wordbag,section_lines);
+          section_n[last_section]++;
         }
+        section_wordbag.push_back(tmp_bag);
+        section_lines.push_back(raw_line);
       }
+      UpdateSection(last_section,NOSECTIONTYPE,section_wordbag,section_lines);
+      section_n[last_section]++;
+
       //cout<<"For resume file: "<<resumes_file<<endl; 
       //cout<<"Skill = "<<num_skill<<endl;
       //cout<<"Edu = "<<num_edu<<endl;
@@ -145,23 +146,24 @@ class Resume {
       //cout<<"sections_.size() = "<<sections_.size()<<endl;
 
 
-      for(auto i=sections_.begin();i!=sections_.end();++i){
-     
+      for(auto i=0;i!=full_section_string_.size();++i){
+        cout<<"SectionType = "<<section_types[i]<<endl; 
         cout<<"*********Lines = *********"<<endl;
-        vector<vector<string> > tmp = *i;
+        vector<string> tmp = full_section_string_[i];
         for(int j=0;j<tmp.size();j++) {
-          for(int k=0;k<tmp[j].size();k++)
-            cout<<tmp[j][k]<<endl;
+            cout<<tmp[j]<<endl;
         }
       }
     }
     void UpdateSection(SectionType& last_section,
                        SectionType _cur_section,
-                       vector<vector<string> > &content){
+                       vector<vector<string> > &content,
+                       vector<string> &section_lines){
       if(last_section!= NOSECTIONTYPE)
-        AddSection(last_section,content);
+        AddSection(last_section,content,section_lines);
       last_section=_cur_section;
       content = vector<vector<string> >();
+      section_lines = vector<string>();
     }
     
     void AddSection(const SectionType &s,vector<vector<string> > &section_wordbag) {
@@ -267,7 +269,7 @@ namespace matching_util {
 			vector<pair_line> pl;
 			auto section1 = r1.getSections(type);
 			auto section2 = r2.getSections(type);
-			int sss;
+			int sss=0;
 			printf("%d %d\n", section1.size(),section2.size());
 			if (section1.size() == 0 || section2.size() == 0) {
 				sss = 0;
@@ -276,7 +278,8 @@ namespace matching_util {
 			else {
 			  auto section1 = r1.getSections()[type];
 			  auto section2 = r2.getSections()[type];
-       			 sss = matching_util::SectionSimilarity(section1, section2, pl);
+       	sss = matching_util::SectionSimilarity(section1, section2, pl);
+        cout<<"ResumeSimilarity: sss = "<<sss<<endl;
 				ps.push_back(PairSection(type, pl, sss));
 			}
 			max = max > sss ? max : sss;
